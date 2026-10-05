@@ -62,9 +62,12 @@ const renderChart = async () => {
         await mermaid.parse(code);
 
         // Render the chart
-        const { svg } = await mermaid.render(id, code);
+        const { svg, bindFunctions } = await mermaid.render(id, code);
 
         output.innerHTML = svg;
+        if (bindFunctions) {
+            bindFunctions(output);
+        }
         errorDiv.classList.add('hidden');
         status.textContent = 'Ready';
         status.style.color = 'var(--success-color)';
@@ -208,20 +211,27 @@ const fullViewBtn = document.getElementById('fullViewBtn');
 const previewPane = document.querySelector('.preview-pane');
 
 const toggleFullView = () => {
+    if (!previewPane) return;
     previewPane.classList.toggle('full-screen');
     const isFullScreen = previewPane.classList.contains('full-screen');
-    fullViewBtn.textContent = isFullScreen ? '✕' : '⛶';
-    fullViewBtn.title = isFullScreen ? 'Exit Full View' : 'Full View';
+    if (fullViewBtn) {
+        fullViewBtn.textContent = isFullScreen ? '✕' : '⛶';
+        fullViewBtn.title = isFullScreen ? 'Exit Full View' : 'Full View';
+    }
 };
 
-fullViewBtn.addEventListener('click', toggleFullView);
+if (fullViewBtn) {
+    fullViewBtn.addEventListener('click', toggleFullView);
+}
 
 // Escape key to exit full view
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && previewPane.classList.contains('full-screen')) {
+    if (e.key === 'Escape' && previewPane?.classList.contains('full-screen')) {
         toggleFullView();
     }
 });
 
 // Input listener
-input.addEventListener('input', debounce(renderChart, 500));
+if (input) {
+    input.addEventListener('input', debounce(renderChart, 500));
+}
